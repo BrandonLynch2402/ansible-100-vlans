@@ -30,4 +30,12 @@
         lines:
           - switchport mode access
         parents: "interface {{ item }}"
+
+- name: save configuration
+  hosts: switches
+  gather_facts: no
+  tasks:
+    - name: save
+      ios_command:
+        commands: write
 ...
