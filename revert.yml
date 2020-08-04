@@ -24,13 +24,6 @@
             access:
               vlan: 1
 
-    - name: enable unused ports
-      with_items: "{{ unused_ports }}"
-      ios_interfaces:
-        config:
-          - name: "{{ item }}"
-            enabled: yes
-
     - name: configure trunk ports to access ports
       with_items: "{{ trunks }}"
       ios_config:
