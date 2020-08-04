@@ -18,6 +18,12 @@
   hosts: switches
   gather_facts: no
   tasks:
+    - name: configure unused ports as access ports
+      with_items: "{{ unused_ports }}"
+      ios_config:
+        lines: switchport mode access
+        parents: "interface {{ item }}"
+
     - name: place unused ports in unused VLAN
       with_items: "{{ unused_ports }}"
       ios_l2_interfaces:
