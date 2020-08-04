@@ -1,0 +1,43 @@
+---
+- name: create vlans
+  hosts: switches
+  gather_facts: no
+  tasks:
+    - name: create vlans
+      with_items: "{{ vlan_list }}"
+      ios_vlans:
+        config:
+          - name: Native
+            vlan_id: 2
+          - name: Unused
+            vlan_id: 3
+          - name: "{{ item.name }}"
+            vlan_id: "{{ item.id }}"
+
+- name: configure ports
+  hosts: switches
+  gather_facts: no
+  tasks:
+    - name: place unused ports in unused VLAN
+      with_items: "{{ unused_ports }}"
+      ios_l2_interfaces:
+        config:
+          - name: "{{ item }}"
+            access:
+              vlan: 3
+
+    - name: shutdown unused ports
+      with_items: "{{ unused_ports }}"
+      ios_interfaces:
+        config:
+          - name: "{{ item }}"
+            enabled: no
+
+    - name: configure trunk ports
+      with_items: "{{ trunks }}"
+      ios_config:
+        lines:
+          - switchport mode trunk
+          - switchport trunk native vlan 2
+        parents: "interface {{ item }}"
+...

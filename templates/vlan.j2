@@ -1,0 +1,6 @@
+---
+vlan_list:
+{% for vlan in vlans %}
+  - name: {{ vlan.name }}
+    id: {{ vlan.id }}
+{% endfor %}

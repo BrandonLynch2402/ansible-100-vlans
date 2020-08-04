@@ -1,0 +1,40 @@
+---
+- name: generate initial informaiton
+  hosts: switches
+  gather_facts: no
+  tasks:
+    - name: generate list of vlan information
+      command: python3 scripts/generate_vlans.py
+
+    - name: gather switch facts
+      ios_facts:
+      register: facts
+
+    - name: make temp directory
+      file:
+        path: "temp/{{ inventory_hostname }}"
+        state: directory
+
+    - name: save interface output
+      copy:
+        content: "{{ facts.ansible_facts.ansible_net_interfaces }}"
+        dest: "temp/{{ inventory_hostname }}/{{ inventory_hostname }}_interfaces.json"
+    
+    - name: determine used ports
+      ios_command:
+        commands: sh cdp n | include Gig
+      register: connected_ports
+
+    - name: save used ports output
+      copy:
+        content: "{{ connected_ports.stdout_lines[0] }}"
+        dest: "temp/{{ inventory_hostname }}/{{ inventory_hostname }}_connected_ports.json"
+
+    - name: generate list of used and unused ports
+      command: ./scripts/generate_port_info.py
+
+    - name: remove temp directory
+      file:
+        path: temp
+        state: absent
+...

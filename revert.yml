@@ -1,0 +1,40 @@
+---
+- name: remove vlans
+  hosts: switches
+  gather_facts: no
+  tasks:
+    - name: remove vlans
+      with_items: "{{ vlan_list }}"
+      ios_vlans:
+        config:
+          - vlan_id: 2
+          - vlan_id: 3
+          - vlan_id: "{{ item.id }}"
+        state: deleted
+
+- name: configure ports
+  hosts: switches
+  gather_facts: no
+  tasks:
+    - name: place unused ports in VLAN 1
+      with_items: "{{ unused_ports }}"
+      ios_l2_interfaces:
+        config:
+          - name: "{{ item }}"
+            access:
+              vlan: 1
+
+    - name: enable unused ports
+      with_items: "{{ unused_ports }}"
+      ios_interfaces:
+        config:
+          - name: "{{ item }}"
+            enabled: yes
+
+    - name: configure trunk ports to access ports
+      with_items: "{{ trunks }}"
+      ios_config:
+        lines:
+          - switchport mode access
+        parents: "interface {{ item }}"
+...
