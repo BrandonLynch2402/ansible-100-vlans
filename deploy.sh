@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ansible-playbook generate_data.yml
 ansible-playbook config.yml
 rm host_vars/*
