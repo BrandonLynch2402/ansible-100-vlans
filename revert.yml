@@ -29,6 +29,8 @@
       ios_config:
         lines:
           - switchport mode access
+          - no switchport trunk encapsulation dot1q
+          - no switchport trunk native vlan
         parents: "interface {{ item }}"
 
 - name: save configuration
